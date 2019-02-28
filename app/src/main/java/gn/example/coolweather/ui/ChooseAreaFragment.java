@@ -1,10 +1,12 @@
 package gn.example.coolweather.ui;
 
 import android.app.ProgressDialog;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class ChooseAreaFragment extends Fragment {
+    public static String tag="ChooseAreaFragment";
     public static final int LEVEL_PROVINCE=0;
     public static final int LEVEL_CITY=1;
     public static final int LEVEL_COUNTY=2;
@@ -129,12 +132,13 @@ public class ChooseAreaFragment extends Fragment {
             currenedLevel=LEVEL_PROVINCE;
         }else {
             String address="http://guolin.tech/api/china";
+            Log.i(tag,address);
             queryFromServer(address,"province");
         }
     }
 
     /**
-     * 查询选中省的所有城市，优先从数据库查询，如果没有查询到在去服务器上查询
+     * 查询选中省的所有城市，优先从数据库查询，如果没有查询到再去服务器上查询
      */
     private void queryCities() {
         titeText.setText(selectedProvince.getProvinceName());
@@ -144,15 +148,16 @@ public class ChooseAreaFragment extends Fragment {
             dataList.clear();
             for(City city:cityList){
                 dataList.add(city.getCityName());
-
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             currenedLevel=LEVEL_CITY;
+            Log.e(tag,"查询数据库里的市级数据"+cityList.size());
         }else {
-            int proviceCode=selectedProvince.getProvinceCode();
-            String address="http://guolin.tech/api/china/"+proviceCode;
+            int provinceCode=selectedProvince.getProvinceCode();
+            String address="http://guolin.tech/api/china/"+provinceCode;
             queryFromServer(address,"city");
+            Log.e(tag,"网络查询数市级数据");
         }
     }
     /**
@@ -162,7 +167,7 @@ public class ChooseAreaFragment extends Fragment {
         titeText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
         countyList=DataSupport.where("cityid=?",String.valueOf(selectedCity.getId())).find(County.class);
-        if(cityList.size()>0){
+        if(countyList.size()>0){
             dataList.clear();
             for(County county:countyList){
                 dataList.add(county.getCountyName());
@@ -170,10 +175,12 @@ public class ChooseAreaFragment extends Fragment {
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             currenedLevel=LEVEL_COUNTY;
+            Log.e(tag,"查询数据库里的县级数据"+countyList.size());
         }else {
-            int proviceCode=selectedProvince.getProvinceCode();
+            int provinceCode=selectedProvince.getProvinceCode();
             int cityCode=selectedCity.getCityCode();
-            String address="http://guolin.tech/api/china/"+proviceCode+"/"+cityCode;
+            String address="http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
+            Log.e(tag,"网络查询数县级数据");
             queryFromServer(address,"county");
         }
     }

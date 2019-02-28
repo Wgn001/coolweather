@@ -1,14 +1,11 @@
 package gn.example.coolweather.util;
 
 import android.text.TextUtils;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import gn.example.coolweather.db.City;
 import gn.example.coolweather.db.County;
@@ -30,7 +27,9 @@ public class Utility {
                     province.setProvinceName(provinceObject.getString("name"));
                     province.save();
                 }
+                Log.i("Province",response);
                 return true;
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -53,6 +52,7 @@ public class Utility {
                     city.setProvinceId(provinceId);
                     city.save();
                 }
+                Log.i("City",response);
                 return true;
             }catch (JSONException e){
                 e.printStackTrace();
@@ -76,7 +76,9 @@ public class Utility {
                         county.setWeatherId(countyObject.getString("weather_id"));
                         county.setCountyName(countyObject.getString("name"));
                         county.setCityId(cityId);
+                        county.save();
                     }
+                    Log.i("Country",response);
                     return true;
                 } catch (JSONException e) {
                     e.printStackTrace();
